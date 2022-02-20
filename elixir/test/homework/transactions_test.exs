@@ -1,15 +1,16 @@
 defmodule Homework.TransactionsTest do
   use Homework.DataCase
 
-  alias Ecto.UUID
   alias Homework.Merchants
   alias Homework.Transactions
   alias Homework.Users
+  alias Homework.Companies
 
   describe "transactions" do
     alias Homework.Transactions.Transaction
 
     setup do
+      {:ok, company} = Companies.create_company(%{name: "company", credit_line: 1000000, available_credit: 1000000})
       {:ok, merchant1} =
         Merchants.create_merchant(%{description: "some description", name: "some name"})
 
@@ -23,14 +24,16 @@ defmodule Homework.TransactionsTest do
         Users.create_user(%{
           dob: "some dob",
           first_name: "some first_name",
-          last_name: "some last_name"
+          last_name: "some last_name",
+          company_id: company.id
         })
 
       {:ok, user2} =
         Users.create_user(%{
           dob: "some updated dob",
           first_name: "some updated first_name",
-          last_name: "some updated last_name"
+          last_name: "some updated last_name",
+          company_id: company.id
         })
 
       valid_attrs = %{
@@ -39,7 +42,8 @@ defmodule Homework.TransactionsTest do
         debit: true,
         description: "some description",
         merchant_id: merchant1.id,
-        user_id: user1.id
+        user_id: user1.id,
+        company_id: company.id
       }
 
       update_attrs = %{
@@ -48,7 +52,8 @@ defmodule Homework.TransactionsTest do
         debit: false,
         description: "some updated description",
         merchant_id: merchant2.id,
-        user_id: user2.id
+        user_id: user2.id,
+        company_id: company.id
       }
 
       invalid_attrs = %{
@@ -57,7 +62,8 @@ defmodule Homework.TransactionsTest do
         debit: nil,
         description: nil,
         merchant_id: nil,
-        user_id: nil
+        user_id: nil,
+        company_id: nil
       }
 
       {:ok,
@@ -68,7 +74,8 @@ defmodule Homework.TransactionsTest do
          merchant1: merchant1,
          merchant2: merchant2,
          user1: user1,
-         user2: user2
+         user2: user2,
+         company: company
        }}
     end
 
@@ -83,7 +90,27 @@ defmodule Homework.TransactionsTest do
 
     test "list_transactions/1 returns all transactions", %{valid_attrs: valid_attrs} do
       transaction = transaction_fixture(valid_attrs)
-      assert Transactions.list_transactions([]) == [transaction]
+      assert Transactions.list_transactions(%{}) == [transaction]
+    end
+
+    test "list_transactions/1 filters by max", %{valid_attrs: valid_attrs} do
+      transaction1 = transaction_fixture(valid_attrs, %{amount: 1})
+      _transaction2 = transaction_fixture(valid_attrs, %{amount: 2})
+      _transaction3 = transaction_fixture(valid_attrs, %{amount: 3})
+
+      assert Transactions.list_transactions(%{max: 1}) == [transaction1]
+      assert length(Transactions.list_transactions(%{max: 2})) == 2
+      assert length(Transactions.list_transactions(%{max: 3})) == 3
+    end
+
+    test "list_transactions/1 filters by min", %{valid_attrs: valid_attrs} do
+      _transaction1 = transaction_fixture(valid_attrs, %{amount: 1000})
+      _transaction2 = transaction_fixture(valid_attrs, %{amount: 2000})
+      transaction3 = transaction_fixture(valid_attrs, %{amount: 3000})
+
+      assert Transactions.list_transactions(%{min: 3000}) == [transaction3]
+      assert length(Transactions.list_transactions(%{min: 2000})) == 2
+      assert length(Transactions.list_transactions(%{min: 1000})) == 3
     end
 
     test "get_transaction!/1 returns the transaction with given id", %{valid_attrs: valid_attrs} do

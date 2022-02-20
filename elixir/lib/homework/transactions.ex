@@ -4,6 +4,7 @@ defmodule Homework.Transactions do
   """
 
   import Ecto.Query, warn: false
+  import HomeworkWeb.Helpers
   alias Homework.Repo
 
   alias Homework.Transactions.Transaction
@@ -17,9 +18,41 @@ defmodule Homework.Transactions do
       [%Transaction{}, ...]
 
   """
-  def list_transactions(_args) do
-    Repo.all(Transaction)
+  def list_transactions(args) do
+    Transaction
+    |> filter_transactions(args)
+    |> paginate_query(args)
+    |> Repo.all
   end
+
+  @doc """
+  counts the total number of transactions matching the filters
+  """
+  def count(args) do 
+    Transaction
+    |> filter_transactions(args)
+    |> Repo.aggregate(:count)
+  end
+
+  def filter_transactions(query, args) when is_map(args) do
+    args
+    |> Enum.map(fn arg -> arg end)
+    |> Enum.reduce(query, fn {k, v}, q -> filter_transactions(q, k, v) end)
+  end
+
+  defp filter_transactions(query, :min, min) do
+    query |> where([t], t.amount >= ^min)
+  end
+
+  defp filter_transactions(query, :max, max) do
+    query |> where([t], t.amount <= ^max)
+  end
+
+  defp filter_transactions(query, :company_id, company_id) do
+    query |> where([t], t.company_id == ^company_id)
+  end
+
+  defp filter_transactions(query, _k, _v), do: query
 
   @doc """
   Gets a single transaction.

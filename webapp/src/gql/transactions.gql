@@ -1,11 +1,22 @@
-query GetTransactions {
-    transactions {
-        id
-        user_id
-        description
-        merchant_id
-        debit
-        credit
-        amount
+query GetTransactions($limit: Int! $skip: Int) {
+    transactions(limit: $limit, skip: $skip) {
+        total_rows
+        data {
+            id
+            user {
+                id
+                first_name
+                last_name
+            }
+            description
+            merchant {
+                id
+                name
+            }
+            company_id
+            debit
+            credit
+            amount
+        }
     }
 }

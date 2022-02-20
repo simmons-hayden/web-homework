@@ -4,22 +4,57 @@ defmodule Homework.Users do
   """
 
   import Ecto.Query, warn: false
+  import HomeworkWeb.Helpers
   alias Homework.Repo
 
   alias Homework.Users.User
 
   @doc """
-  Returns the list of users.
+  Returns the list of users. Can search by first or last name
 
   ## Examples
 
       iex> list_users([])
       [%User{}, ...]
 
+      iex> list_users([{first_name: "tys"}])
+      [%User{ first_name: tyson, last_name: decker}]
+
+      iex> list_users([{last_name: "deck"}])
+      [%User{ first_name: tyson, last_name: decker}, %User{ first_name: steele, last_name: decker}]
+
   """
-  def list_users(_args) do
-    Repo.all(User)
+  def list_users(args) do
+    User
+    |> filter_users(args)
+    |> paginate_query(args)
+    |> Repo.all
   end
+
+  @doc """
+  counts the total number of users matching the filters
+  """
+  def count(args) do 
+    User
+    |> filter_users(args)
+    |> Repo.aggregate(:count)
+  end
+
+  def filter_users(query, args) when is_map(args) do
+    args
+    |> Enum.map(fn arg -> arg end)
+    |> Enum.reduce(query, fn {k, v}, q -> filter_users(q, k, v) end)
+  end
+
+  defp filter_users(query, :first_name, name) do
+    query |> where([u], ilike(u.first_name, ^"%#{name}%"))
+  end
+
+  defp filter_users(query, :last_name, name) do
+    query |> where([u], ilike(u.last_name, ^"%#{name}%"))
+  end
+
+  defp filter_users(query, _k, _v), do: query
 
   @doc """
   Gets a single user.

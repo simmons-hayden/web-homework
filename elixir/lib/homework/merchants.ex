@@ -7,6 +7,7 @@ defmodule Homework.Merchants do
   alias Homework.Repo
 
   alias Homework.Merchants.Merchant
+  alias Homework.Transactions.Transaction
 
   @doc """
   Returns the list of merchants.
@@ -17,9 +18,32 @@ defmodule Homework.Merchants do
       [%Merchant{}, ...]
 
   """
-  def list_merchants(_args) do
-    Repo.all(Merchant)
+  def list_merchants(args) do
+    Merchant
+    |> filter_merchants(args)
+    |> Repo.all
   end
+
+  @doc """
+  counts the total number of merchants matching the filters
+  """
+  def count(args) do
+    Merchant
+    |> filter_merchants(args)
+    |> Repo.aggregate(:count)
+  end
+
+  def filter_merchants(query, args) when is_map(args) do
+    args
+    |> Enum.map(fn arg -> arg end)
+    |> Enum.reduce(query, fn {k, v}, q -> filter_merchants(q, k, v) end)
+  end
+
+  defp filter_merchants(query, :name, name) do
+    query |> where([m], ilike(m.name, ^"%#{name}%"))
+  end
+
+  defp filter_merchants(query, _k, _v), do: query
 
   @doc """
   Gets a single merchant.
@@ -100,5 +124,18 @@ defmodule Homework.Merchants do
   """
   def change_merchant(%Merchant{} = merchant, attrs \\ %{}) do
     Merchant.changeset(merchant, attrs)
+  end
+
+  @doc """
+  Returns sum of transactions per merchant
+  """
+  def transactions(_args) do
+    query = from m in Merchant,
+      left_join: t in Transaction,
+      on: m.id == t.merchant_id,
+      group_by: m.id,
+      select: { m, sum(t.amount)}
+    
+    Repo.all(query)
   end
 end

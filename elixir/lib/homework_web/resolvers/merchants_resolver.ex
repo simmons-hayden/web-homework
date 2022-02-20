@@ -5,7 +5,13 @@ defmodule HomeworkWeb.Resolvers.MerchantsResolver do
   Get a list of merchants
   """
   def merchants(_root, args, _info) do
-    {:ok, Merchants.list_merchants(args)}
+    data = Merchants.list_merchants(args)
+    total_rows = Merchants.count(args)
+
+    {:ok, %{
+      data: data,
+      total_rows: total_rows
+    }}
   end
 
   @doc """
@@ -49,5 +55,14 @@ defmodule HomeworkWeb.Resolvers.MerchantsResolver do
       error ->
         {:error, "could not update merchant: #{inspect(error)}"}
     end
+  end
+
+  @doc """
+  Gets the number of transactions by merchant
+  """
+  def transactions(_root, args, _info) do
+    result = Merchants.transactions(args)
+    |> Enum.map(fn {merchant, transactions_sum} -> %{merchant: merchant, transactions_sum: transactions_sum} end)
+    {:ok, result}
   end
 end
