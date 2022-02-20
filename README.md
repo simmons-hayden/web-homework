@@ -13,8 +13,10 @@ Please share your finished project repo with @thawk55 and @jakerichan as part of
 - run elixir backend. From `/elixir` run `docker compose up web`
 - run the ui. From `/webapp` run `yarn` then `yarn start`
 - visit [http://localhost:3000](http://localhost:3000)
+<br />
 Objectives Completed
-- Frontent
+<br />
+- Frontend
   - [x] Write a basic user interface that allows users to enter, edit, and remove transactions.
   - [x] Provide a pie chart or histogram of the spend per category or spend per day, respectively.
   - [x] Add a user experience
