@@ -16,15 +16,15 @@ Please share your finished project repo with @thawk55 and @jakerichan as part of
 <br />
 Objectives Completed
 <br />
-- Frontend
-  - [x] Write a basic user interface that allows users to enter, edit, and remove transactions.
-  - [x] Provide a pie chart or histogram of the spend per category or spend per day, respectively.
-  - [x] Add a user experience
-- Backend
-  - [x] Seed the database.
-  - [x] Write a new schema, queries, and mutations to add companies to the app
-  - [x] Add a pagination layer to the queries
-  - [x] added test cases for added company functionality
+- Frontend<br />
+  - [x] Write a basic user interface that allows users to enter, edit, and remove transactions.<br />
+  - [x] Provide a pie chart or histogram of the spend per category or spend per day, respectively.<br />
+  - [x] Add a user experience<br /><br />
+- Backend<br />
+  - [x] Seed the database.<br />
+  - [x] Write a new schema, queries, and mutations to add companies to the app<br />
+  - [x] Add a pagination layer to the queries<br />
+  - [x] added test cases for added company functionality<br />
 
 ## Project Setup
 
