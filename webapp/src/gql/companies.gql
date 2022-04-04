@@ -1,0 +1,11 @@
+query GetCompanies {
+    companies {
+        total_rows
+        data {
+            id
+            name
+            available_credit
+            credit_line
+        }
+    }
+}
